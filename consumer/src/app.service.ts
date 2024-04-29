@@ -7,7 +7,7 @@ export class AppService {
 
   handleOrderPlaced(order: OrderDto) {
     console.log(`Received a new order - customer: ${order.email}`);
-    this.orders.push(order);
+
     //Send email
   }
 

@@ -14,8 +14,19 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @EventPattern('order-placed')
-  handleOrderPlaced(@Payload() order: OrderDto) {
-    return this.appService.handleOrderPlaced(order);
+  async handleOrderPlaced(
+    @Payload() order: OrderDto,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+    try {
+      const status = this.appService.handleOrderPlaced(order);
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      channel.nack(originalMessage);
+    }
   }
 
   @MessagePattern({ cmd: 'fetch-orders' })
